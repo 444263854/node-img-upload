@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>文件上传</title>
+</head>
+
+<body>
+    <input type="file" accept="image/*">
+    <script>
+        var xhr = new XMLHttpRequest(),
+            ipt = document.getElementsByTagName('input')[0];
+
+        ipt.onchange = function (e) {
+            var formData = new FormData(),
+                image1 = document.createElement('img'),
+                image2 = new Image();
+            document.body.innerHTML = '';
+            image1.name = 1;
+            image2.name = 2;
+            xhr.open('post', '/demoFile');
+            xhr.onreadystatechange = function () {
+                if (xhr.status == 200 && xhr.readyState == xhr.DONE) {
+                    ipt.value = null;
+                }
+            }
+
+            var file = ipt.files[0];
+            var reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = function (e) {
+                var result = new Blob([e.target.result], {
+                    type: file.type
+                });
+                console.log('TCL: reader.onload -> result', result);
+
+                formData.append('files', result);
+                xhr.send(formData);
+            }
+            // reader.readAsDataURL(file)
+
+            // reader.onload = function () {
+            //     var result = reader.result;
+            //     var canvas = document.createElement('canvas');
+
+            //     image1.src = result;
+            //     image1.onload = function () {
+            //         var orangeW = this.width,
+            //             orangeH = this.height;
+
+            //         var changeW, changeH, ratio;
+            //         if (orangeW > 400 || orangeH > 400) {
+            //             if (orangeW / orangeH >= 1) {
+            //                 ratio = orangeW / 400;
+            //                 changeW = 400;
+            //                 changeH = orangeH / ratio;
+            //             } else {
+            //                 ratio = orangeH / 400;
+            //                 changeH = 400;
+            //                 changeW = orangeH / ratio;
+            //             }
+            //             canvas.width = changeW;
+            //             canvas.height = changeH;
+            //         } else {
+            //             changeW = orangeW;
+            //             changeH = orangeH;
+            //         }
+            //         canvas.width = changeW;
+            //         canvas.height = changeH;
+            //         // image1.width = changeW;
+            //         // image2.height = changeH;
+            //         var ctx = canvas.getContext('2d');
+            //         ctx.drawImage(image1, 0, 0, changeW, changeH);
+
+            //         image2.src = canvas.toDataURL('image/png', 0.1);
+            //         image2.onload = function () {
+            //             document.body.append(canvas)
+            //             document.body.append(image1)
+            //             document.body.append(image2)
+
+            //             formData.append('files', image2.src);
+            //             xhr.send(formData)
+            //         }
+            //     }
+
+            // }
+        }
+    </script>
+</body>
+
+</html>

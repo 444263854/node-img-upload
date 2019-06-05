@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>index</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <style>
+        .wrap{
+            width: 400px;
+            height: 100px;
+            background: #eee;
+            margin-top: 50px;
+        }
+    
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <button class="selector">选择</button>
+    </div>
+    <ul class="list">
+
+    </ul>
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://cdn.staticfile.org/webuploader/0.1.0/webuploader.html5only.min.js"></script>
+    <script>
+        var uploader = WebUploader.create({
+            //指定Drag And Drop拖拽的容器
+            dnd: '.wrap',
+            //是否禁掉整个页面的拖拽功能，如果不禁用，图片拖进来的时候会默认被浏览器打开。
+            disableGlobalDnd: true,
+            //截图后，实现粘贴
+            paste: 'document.body',
+            pick: {
+                id: '.selector',
+                multiple: true
+            },
+            compress: false,
+            //设置为 true 后，不需要手动调用上传，有文件选择即开始上传。
+            chunked: true,
+            auto: true,
+            fileVal: 'fileArr',
+            //预先准备下一个文件的上传工作（编码）
+            prepareNextFile: true,
+            //上传并发数。允许同时最大上传进程数。
+            threads: 3,
+            // 文件上传请求的参数表，每次发送都会发送此对象中的参数。
+            formData: {},
+            //设置文件上传的url。
+            server: 'http://localhost:8888/upload',
+            method: 'POST'
+        })
+
+
+        uploader.on('fileQueued', function (file) {
+            var item = $(
+                `<li id="${file.id}">
+                    <span class="name">${file.name}</span>---
+                    <span >${WebUploader.Base.formatSize(file.size)}</span>---
+                    <span class="progress">0%</span>---
+                    <button class="pause">暂停</button>---
+                    <button class="continue">继续</button>---
+                    <button  class="stop">停止</button>
+                    </li>`
+            );
+            item.appendTo($('ul.list'));
+
+            item.find('.pause').on('click', function () {
+                uploader.stop(file)
+            })
+
+            item.find('.continue').on('click', function () {
+                uploader.upload(file)
+            })
+
+            item.find('.stop').on('click', function () {
+                uploader.removeFile(file)
+            })
+
+        })
+
+        uploader.on('uploadProgress', function (file, percent) {
+            $(`li#${file.id}`).find('.progress').text(percent.toFixed(2) * 100 + "%")
+        })
+    </script>
+</body>
+
+</html>
